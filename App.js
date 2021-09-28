@@ -5,8 +5,16 @@ import Constants from 'expo-constants';
 import Home from './screens/Home';
 import CreateEmployee from './screens/CreateEmployee'
 import Profile from './screens/Profile'
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+import {reducer} from './reducers/reducer';
+
+
+const store = createStore(reducer)
+
 
 const Stack = createStackNavigator();
 
@@ -35,9 +43,11 @@ function App() {
 
 export default ()=>{
   return(
+    <Provider store={store}>
     <NavigationContainer>
       <App />
     </NavigationContainer>
+    </Provider>
   )
 }
 
