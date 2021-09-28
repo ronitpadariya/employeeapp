@@ -7,14 +7,20 @@ const Home=({navigation})=>{
     const [data,setData] = useState([])
     const [loading, setLoading] = useState(true)
 
-    useEffect(()=>{
+    const fetchData = ()=>{
         fetch("http://professional-app.herokuapp.com/").
         then(res=>res.json())
         .then(results=>{
             console.log(results);
             setData(results)
             setLoading(false)
+        }).catch(err=>{
+            Alert.alert("Something went wrong")
         })
+    }
+
+    useEffect(()=>{
+        fetchData()
     },[])
 
     const renderList = ({item}) => (
@@ -39,16 +45,15 @@ const Home=({navigation})=>{
 
     return (
         <View style={{flex:1}}>
-            {
-                loading?
-                <ActivityIndicator size="large" color="#00ff00" />
-                :
+            
                 <FlatList 
                     data={data}
                     renderItem={renderList}
                     keyExtractor={item=>item._id}
+                    onRefresh={()=>fetchData()}
+                    refreshing={loading}
                 />
-            }
+            
             
 
             <FAB
