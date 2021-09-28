@@ -1,18 +1,40 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, Modal, Alert, KeyboardAvoidingView } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
 
-const CreateEmployee = ()=>{
+const CreateEmployee = ({navigation})=>{
     
-    const [Name, setName] = React.useState("")
+    const [name, setName] = React.useState("")
     const [phone, setPhone] = React.useState("")
     const [email, setEmail] = React.useState("")
     const [salary, setSalary] = React.useState("")
     const [picture, setPicture] = React.useState("")
+    const [position, setPosition] = React.useState("")
     const [modal, setModal] = React.useState(false)
+
+    const submitData = ()=>{
+        fetch("http://professional-app.herokuapp.com/send-data",{
+            method:"post",
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                name,
+                email,
+                phone,
+                salary,
+                picture,
+                position
+            })
+        }).then(res=>res.json())
+        .then(data=>{
+            Alert.alert(`${data.name} is saved successfully`)
+            navigation.navigate("Home")
+        })
+    }
 
     const pickFromGallery = async ()=>{
         const {granted} = await Permissions.askAsync(Permissions.CAMERA_ROLL)
@@ -73,12 +95,11 @@ const CreateEmployee = ()=>{
     }
 
     return(
-        <View style={styles.root}>
-            
+            <View style={styles.root}>
             <TextInput
                 label="Name"
                 style={styles.inputStyle}
-                value={Name}
+                value={name}
                 theme={theme}
                 mode="outlined"
                 onChangeText={text => setName(text)}
@@ -113,6 +134,15 @@ const CreateEmployee = ()=>{
                 onChangeText={text => setSalary(text)}
             />
 
+            <TextInput
+                label="Position"
+                style={styles.inputStyle}
+                value={position}
+                theme={theme}
+                mode="outlined"
+                onChangeText={text => setPosition(text)}
+            />
+
             <Button 
                 style={styles.inputStyle}
                 icon={picture==""?"upload":"check"}
@@ -127,7 +157,7 @@ const CreateEmployee = ()=>{
                 icon="content-save" 
                 mode="contained"
                 theme={theme}
-                onPress={() => console.log("saved")}>
+                onPress={() => submitData()}>
                     Save
             </Button>
 
@@ -144,13 +174,17 @@ const CreateEmployee = ()=>{
                         <Button icon="camera" 
                             theme={theme}
                             mode="contained"
-                            onPress={() => pickFromCamera()}>
+                            onPress={ ()=> 
+                                pickFromCamera()
+                            }>
                                 camera
                         </Button>
                         <Button icon="image-area" 
                             mode="contained"
                             theme={theme} 
-                            onPress={() => pickFromGallery()}>
+                            onPress={ ()=> 
+                                pickFromGallery()
+                            }>
                                 gallery
                         </Button>
                     </View>
@@ -161,7 +195,6 @@ const CreateEmployee = ()=>{
                     </Button>
                 </View>
             </Modal>
-
         </View>
     )
 }
