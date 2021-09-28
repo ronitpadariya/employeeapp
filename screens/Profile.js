@@ -13,7 +13,7 @@ const Profile = (props)=>{
         if(Platform.OS === "android"){
             Linking.openURL(`tel:${phone}`)
         } else {
-            Linking.openURL"telprompt:${phone}`)
+            Linking.openURL(`telprompt:${phone}`)
         }
     }
 
