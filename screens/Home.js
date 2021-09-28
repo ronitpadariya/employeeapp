@@ -1,24 +1,31 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { StyleSheet, Text, View, Image, FlatList, ActivityIndicator } from 'react-native';
 import { Card, FAB } from 'react-native-paper'
 
 const Home=({navigation})=>{
-    const data = [
-        {id:"1", name:"Rakesh", email:"rakesh@mail.com", salary:"5 LPA", phone:"123", position:"android dev", picture:"https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=880&q=80"},
-        {id:"2", name:"Suresh", email:"suresh@mail.com", salary:"8 LPA", phone:"456", position:"web dev", picture:"https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=880&q=80"},
-        {id:"3", name:"Ramesh", email:"ramesh@mail.com", salary:"10 LPA", phone:"789", position:"ML expert", picture:"https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=880&q=80"},
-        {id:"4", name:"Hitesh", email:"hitesh@mail.com", salary:"15 LPA", phone:"012", position:"AI dev", picture:"https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=880&q=80"},
-    ]
+    
+    const [data,setData] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(()=>{
+        fetch("http://professional-app.herokuapp.com/").
+        then(res=>res.json())
+        .then(results=>{
+            console.log(results);
+            setData(results)
+            setLoading(false)
+        })
+    },[])
 
     const renderList = ({item}) => (
             
-                <Card style={styles.mycard} key={item.id}
+                <Card style={styles.mycard} key={item._id}
                     onPress={()=> navigation.navigate("Profile",{item})}
                 >
                     <View style={styles.cardView}>
                         <Image 
                             style={{width:60,height:60,borderRadius:30}}
-                            source={{uri:"https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=880&q=80"}}
+                            source={{uri:item.picture}}
                             />
                         <View style={{marginLeft:10}}>
                             <Text style={styles.text}>{item.name}</Text>
@@ -32,11 +39,17 @@ const Home=({navigation})=>{
 
     return (
         <View style={{flex:1}}>
-            <FlatList 
-                data={data}
-                renderItem={renderList}
-                keyExtractor={item=>item.id}
-            />
+            {
+                loading?
+                <ActivityIndicator size="large" color="#00ff00" />
+                :
+                <FlatList 
+                    data={data}
+                    renderItem={renderList}
+                    keyExtractor={item=>item._id}
+                />
+            }
+            
 
             <FAB
                 style={styles.fab}

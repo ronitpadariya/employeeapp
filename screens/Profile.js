@@ -7,7 +7,7 @@ import { MaterialIcons, Entypo } from '@expo/vector-icons';
 
 const Profile = (props)=>{
 
-    const {id, name, email, salary, phone, position, picture} = props.route.params.item
+    const {_id, name, email, salary, phone, position, picture} = props.route.params.item
 
     const openDial=()=>{
         if(Platform.OS === "android"){
@@ -26,7 +26,7 @@ const Profile = (props)=>{
             <View style={{alignItems:"center"}}>
                 <Image 
                     style={{width:100,height:100, borderRadius:50, marginTop:-50}}
-                    source={{uri:"https://images.unsplash.com/photo-1485206412256-701ccc5b93ca?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=894&q=80"}}
+                    source={{uri:picture}}
                 />
             </View>
             <View style={{alignItems:"center",margin:15}}>
