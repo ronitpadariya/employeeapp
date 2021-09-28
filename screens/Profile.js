@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Linking, Platform } from 'react-native';
+import { StyleSheet, Text, View, Image, Linking, Platform, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Title, Card, Button } from 'react-native-paper';
 import { MaterialIcons, Entypo } from '@expo/vector-icons';
@@ -8,6 +8,27 @@ import { MaterialIcons, Entypo } from '@expo/vector-icons';
 const Profile = (props)=>{
 
     const {_id, name, email, salary, phone, position, picture} = props.route.params.item
+
+    console.log(_id);
+
+    const deleteEmployee = ()=>{
+        fetch("http://professional-app.herokuapp.com/delete",{
+            method:"post",
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                id:_id
+            })
+        })
+        .then(res=>res.json())
+        .then(deletedEmp=>{
+            Alert.alert(`${deletedEmp.name} deleted`)
+            props.navigation.navigate("Home")
+        }).catch(err=>{
+            Alert.alert("Something went wrong")
+        })
+    }
 
     const openDial=()=>{
         if(Platform.OS === "android"){
@@ -69,7 +90,7 @@ const Profile = (props)=>{
                 <Button icon="delete" 
                     mode="contained"
                     theme={theme} 
-                    onPress={() => console.log("Pressed")}>
+                    onPress={() => deleteEmployee()}>
                     Fire employee
                 </Button>
             </View>
