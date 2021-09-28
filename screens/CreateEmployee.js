@@ -1,19 +1,46 @@
-import * as React from 'react';
+import React,{useState} from 'react';
 import { StyleSheet, Text, View, Modal, Alert, KeyboardAvoidingView } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
 
-const CreateEmployee = ({navigation})=>{
+const CreateEmployee = ({navigation,route})=>{
+
+    const getDetails = (type)=>{
+        if(route.params){
+            switch (type) {
+                case "name":
+                    return route.params.name
+                case "phone":
+                    return route.params.phone
+                case "email":
+                    return route.params.email
+                case "salary":
+                    return route.params.salary
+                case "picture":
+                    return route.params.picture
+                case "position":
+                    return route.params.position
+                default:
+                    break;
+            }
+        }
+        return ""
+    }
     
-    const [name, setName] = React.useState("")
-    const [phone, setPhone] = React.useState("")
-    const [email, setEmail] = React.useState("")
-    const [salary, setSalary] = React.useState("")
-    const [picture, setPicture] = React.useState("")
-    const [position, setPosition] = React.useState("")
+    if(route.params){
+        console.log(route.params);
+    }
+
+    const [name, setName] = React.useState(getDetails("name"))
+    const [phone, setPhone] = React.useState(getDetails("phone"))
+    const [email, setEmail] = React.useState(getDetails("email"))
+    const [salary, setSalary] = React.useState(getDetails("salary"))
+    const [picture, setPicture] = React.useState(getDetails("picture"))
+    const [position, setPosition] = React.useState(getDetails("position"))
     const [modal, setModal] = React.useState(false)
+    const [enableshift, setenableShift] = React.useState(false)
 
     const submitData = ()=>{
         fetch("http://professional-app.herokuapp.com/send-data",{
@@ -38,12 +65,36 @@ const CreateEmployee = ({navigation})=>{
         })
     }
 
+    const updateDetails = ()=>{
+        fetch("http://professional-app.herokuapp.com/update",{
+            method:"post",
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                id:route.params._id,
+                name,
+                email,
+                phone,
+                salary,
+                picture,
+                position
+            })
+        }).then(res=>res.json())
+        .then(data=>{
+            Alert.alert(`${data.name} is updated successfully`)
+            navigation.navigate("Home")
+        }).catch(err=>{
+            Alert.alert("Something went wrong")
+        })
+    }
+
     const pickFromGallery = async ()=>{
         const {granted} = await Permissions.askAsync(Permissions.CAMERA_ROLL)
         if(granted){
             let data = await ImagePicker.launchImageLibraryAsync({
-                mediTypes:ImagePicker.MediaTypeOptions.Images,
-                allowEditing:true,
+                mediaTypes:ImagePicker.MediaTypeOptions.Images,
+                allowsEditing:true,
                 aspect:[1,1],
                 quality:0.5
             })
@@ -55,7 +106,7 @@ const CreateEmployee = ({navigation})=>{
                 handleUpload(newFile)
             }
         } else {
-            Alert.alert("You need to give up permissionto work")
+            Alert.alert("You need to give up permission to work")
         }
     }
 
@@ -63,8 +114,8 @@ const CreateEmployee = ({navigation})=>{
         const {granted} = await Permissions.askAsync(Permissions.CAMERA)
         if(granted){
             let data = await ImagePicker.launchCameraAsync({
-                mediTypes:ImagePicker.MediaTypeOptions.Images,
-                allowEditing:true,
+                mediaTypes:ImagePicker.MediaTypeOptions.Images,
+                allowsEditing:true,
                 aspect:[1,1],
                 quality:0.5
             })
@@ -76,7 +127,7 @@ const CreateEmployee = ({navigation})=>{
                 handleUpload(newFile)
             }
         } else {
-            Alert.alert("You need to give up permissionto work")
+            Alert.alert("You need to give up permission to work")
         }
     }
 
@@ -99,11 +150,13 @@ const CreateEmployee = ({navigation})=>{
     }
 
     return(
-            <View style={styles.root}>
+        <KeyboardAvoidingView behavior="position" style={styles.root} enabled={enableshift}>
+            <View >
             <TextInput
                 label="Name"
                 style={styles.inputStyle}
                 value={name}
+                onFocuse={()=> setenableShift(false)}
                 theme={theme}
                 mode="outlined"
                 onChangeText={text => setName(text)}
@@ -114,6 +167,7 @@ const CreateEmployee = ({navigation})=>{
                 style={styles.inputStyle}
                 value={email}
                 theme={theme}
+                onFocuse={()=> setenableShift(false)}
                 keyboardType="email-address"
                 mode="outlined"
                 onChangeText={text => setEmail(text)}
@@ -124,6 +178,7 @@ const CreateEmployee = ({navigation})=>{
                 style={styles.inputStyle}
                 value={phone}
                 theme={theme}
+                onFocuse={()=> setenableShift(false)}
                 keyboardType="number-pad"
                 mode="outlined"
                 onChangeText={text => setPhone(text)}
@@ -134,6 +189,7 @@ const CreateEmployee = ({navigation})=>{
                 style={styles.inputStyle}
                 value={salary}
                 theme={theme}
+                onFocuse={()=> setenableShift(true)}
                 mode="outlined"
                 onChangeText={text => setSalary(text)}
             />
@@ -143,6 +199,7 @@ const CreateEmployee = ({navigation})=>{
                 style={styles.inputStyle}
                 value={position}
                 theme={theme}
+                onFocuse={()=> setenableShift(true)}
                 mode="outlined"
                 onChangeText={text => setPosition(text)}
             />
@@ -156,14 +213,26 @@ const CreateEmployee = ({navigation})=>{
                     Upload Image
             </Button>
 
-            <Button 
-                style={styles.inputStyle}
-                icon="content-save" 
-                mode="contained"
-                theme={theme}
-                onPress={() => submitData()}>
-                    Save
-            </Button>
+            {
+                route.params?
+                    <Button 
+                        style={styles.inputStyle}
+                        icon="content-save" 
+                        mode="contained"
+                        theme={theme}
+                        onPress={() => updateDetails()}>
+                            Update Details
+                    </Button>
+                :
+                    <Button 
+                        style={styles.inputStyle}
+                        icon="content-save" 
+                        mode="contained"
+                        theme={theme}
+                        onPress={() => submitData()}>
+                            Save
+                    </Button>
+            }
 
             <Modal
                 animationType="slide"
@@ -200,6 +269,7 @@ const CreateEmployee = ({navigation})=>{
                 </View>
             </Modal>
         </View>
+        </KeyboardAvoidingView>
     )
 }
 

@@ -11,7 +11,6 @@ const Home=({navigation})=>{
         fetch("http://professional-app.herokuapp.com/").
         then(res=>res.json())
         .then(results=>{
-            console.log(results);
             setData(results)
             setLoading(false)
         }).catch(err=>{
