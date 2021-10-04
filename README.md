@@ -10,7 +10,6 @@ includes camera access, uploading images,redux,working with node js and express 
 - Add Employee
 - Edit Employee
 - Delete Employee
-- Dark Theme
 
 
 ## Tech Stack
